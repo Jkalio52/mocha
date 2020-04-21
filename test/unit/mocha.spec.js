@@ -546,7 +546,7 @@ describe('Mocha', function() {
 
         describe('when Mocha is set to lazily load files', function() {
           beforeEach(function() {
-            mocha.loadAsync = true;
+            mocha.lazyLoadFiles = true;
           });
 
           it('should not eagerly load files', function(done) {

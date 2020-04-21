@@ -160,7 +160,7 @@ describe('Mocha', function() {
             expect(
               function() {
                 mocha.reporter(
-                  '../../test/node-nit/fixtures/wonky-reporter.fixture.js'
+                  './test/node-unit/fixtures/wonky-reporter.fixture.js'
                 );
               },
               'to throw',
@@ -173,7 +173,7 @@ describe('Mocha', function() {
           it('should warn about the error before throwing', function() {
             try {
               mocha.reporter(
-                require.resolve('./fixtures/wonky-reporter.fixture.js')
+                './test/node-unit/fixtures/wonky-reporter.fixture.js'
               );
             } catch (ignored) {
             } finally {

@@ -37,6 +37,11 @@ module.exports = config => {
           .ignore('./lib/esm-utils.js')
           .ignore('path')
           .ignore('supports-color')
+          .ignore('./lib/buffered-runner.js')
+          .ignore('./lib/reporters/buffered.js')
+          .ignore('./lib/serializer.js')
+          .ignore('./lib/worker.js')
+          .ignore('./lib/pool.js')
           .on('bundled', (err, content) => {
             if (err) {
               throw err;

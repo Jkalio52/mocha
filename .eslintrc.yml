@@ -21,22 +21,28 @@ rules:
       property: 'assign'
 overrides:
   - files:
-      - docs/js/**/*.js
+      - 'docs/js/**/*.js'
     env:
       node: false
   - files:
-      - scripts/**/*.js
-      - package-scripts.js
-      - karma.conf.js
-      - .wallaby.js
-      - .eleventy.js
-      - bin/*
-      - lib/cli/**/*.js
-      - test/node-unit/**/*.js
-      - test/integration/options/watch.spec.js
-      - test/integration/helpers.js
-      - lib/growl.js
-      - docs/_data/**/*.js
+      - 'scripts/**/*.js'
+      - 'package-scripts.js'
+      - 'karma.conf.js'
+      - '.wallaby.js'
+      - '.eleventy.js'
+      - 'bin/*'
+      - 'lib/cli/**/*.js'
+      - 'test/node-unit/**/*.js'
+      - 'test/integration/options/watch.spec.js'
+      - 'test/integration/helpers.js'
+      - 'lib/growl.js'
+      - 'lib/buffered-runner.js'
+      - 'lib/worker.js'
+      - 'lib/reporters/buffered.js'
+      - 'lib/serializer.js'
+      - 'lib/pool.js'
+      - 'test/reporters/buffered.spec.js'
+      - 'docs/_data/**/*.js'
     parserOptions:
       ecmaVersion: 2018
     env:
