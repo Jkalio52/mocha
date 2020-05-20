@@ -51,7 +51,13 @@ describe('Mocha', function() {
     sandbox = sinon.createSandbox();
     reporterInstance = {};
     opts = {reporter: sandbox.stub().returns(reporterInstance)};
-    Base = sandbox.stub().returns({});
+
+    // NOTE: calling `stub(someObject, someFunction)` where `someFunction` has
+    // its own static properties WILL NOT blast those static properties!
+    Base = sandbox.stub(Mocha.reporters, 'Base').returns({});
+    sandbox.stub(Mocha.reporters, 'base').returns({});
+    sandbox.stub(Mocha.reporters, 'spec').returns({});
+
     runner = utils.assign(sandbox.createStubInstance(EventEmitter), {
       run: sandbox
         .stub()
@@ -61,7 +67,7 @@ describe('Mocha', function() {
       grep: sandbox.stub(),
       dispose: sandbox.stub()
     });
-    Runner = sandbox.stub().returns(runner);
+    Runner = sandbox.stub(Mocha, 'Runner').returns(runner);
     // the Runner constructor is the main export, and constants is a static prop.
     // we don't need the constants themselves, but the object cannot be undefined
     Runner.constants = {};
@@ -72,18 +78,13 @@ describe('Mocha', function() {
       dispose: sandbox.stub(),
       reset: sandbox.stub()
     });
-    Suite = sandbox.stub().returns(suite);
+    Suite = sandbox.stub(Mocha, 'Suite').returns(suite);
     Suite.constants = {};
 
     sandbox.stub(utils, 'supportsEsModules').returns(false);
     sandbox.stub(utils, 'warn');
     sandbox.stub(utils, 'isString');
     sandbox.stub(utils, 'noop');
-
-    Mocha.Runner = Runner;
-    Mocha.reporters.Base = Mocha.reporters.base = Base;
-    sandbox.stub(Mocha.reporters, 'spec');
-    Mocha.Suite = Suite;
   });
 
   afterEach(function() {
@@ -635,7 +636,7 @@ describe('Mocha', function() {
 
           it('should configure the Base reporter', function(done) {
             mocha.run(function() {
-              expect(Base, 'to exhaustively satisfy', {
+              expect(Base, 'to satisfy', {
                 inlineDiffs: 'some value',
                 hideDiff: true,
                 useColors: 'truthy'
@@ -647,7 +648,7 @@ describe('Mocha', function() {
 
         it('should configure the Base reporter', function(done) {
           mocha.run(function() {
-            expect(Base, 'to exhaustively satisfy', {
+            expect(Base, 'to satisfy', {
               inlineDiffs: 'some value',
               hideDiff: true
             });

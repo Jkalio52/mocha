@@ -10,7 +10,7 @@ const path = require('path');
  * @returns {string} Command string to be executed by nps.
  */
 function test(testName, mochaParams) {
-  let coverageCommand = `nyc --no-clean --report-dir coverage/reports/${testName}`;
+  let coverageCommand = `nyc --no-clean --report-dir="coverage/reports/${testName}"`;
   const mochaCommand = `node ${path.join('bin', 'mocha')}`; // Include 'node' and path.join for Windows compatibility
   if (process.env.CI) {
     // suppress coverage summaries in CI to reduce noise
@@ -18,7 +18,6 @@ function test(testName, mochaParams) {
     if (!/^only-/.test(testName)) {
       mochaParams += ' --forbid-only';
     }
-    mochaParams += ' --color';
   }
   // this may _actually_ be supported in the future
   if (process.env.MOCHA_PARALLEL === '0') {
