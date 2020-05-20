@@ -169,19 +169,25 @@ module.exports = {
             hiddenFromHelp: true
           },
           bdd: {
-            script: test('only-bdd', '--ui bdd test/only/bdd.spec'),
+            script: test(
+              'only-bdd',
+              '--ui bdd test/only/bdd.spec --no-parallel'
+            ),
             description: 'Run Node.js "only" w/ BDD interface tests',
             hiddenFromHelp: true
           },
           tdd: {
-            script: test('only-tdd', '--ui tdd test/only/tdd.spec'),
+            script: test(
+              'only-tdd',
+              '--ui tdd test/only/tdd.spec --no-parallel'
+            ),
             description: 'Run Node.js "only" w/ TDD interface tests',
             hiddenFromHelp: true
           },
           bddRequire: {
             script: test(
               'only-bdd-require',
-              '--ui qunit test/only/bdd-require.spec'
+              '--ui qunit test/only/bdd-require.spec --no-parallel'
             ),
             description: 'Run Node.js "only" w/ QUnit interface tests',
             hiddenFromHelp: true
@@ -189,7 +195,7 @@ module.exports = {
           globalBdd: {
             script: test(
               'only-global-bdd',
-              '--ui bdd test/only/global/bdd.spec'
+              '--ui bdd test/only/global/bdd.spec --no-parallel'
             ),
             description: 'Run Node.js "global only" w/ BDD interface tests',
             hiddenFromHelp: true
@@ -197,7 +203,7 @@ module.exports = {
           globalTdd: {
             script: test(
               'only-global-tdd',
-              '--ui tdd test/only/global/tdd.spec'
+              '--ui tdd test/only/global/tdd.spec --no-parallel'
             ),
             description: 'Run Node.js "global only" w/ TDD interface tests',
             hiddenFromHelp: true
@@ -205,7 +211,7 @@ module.exports = {
           globalQunit: {
             script: test(
               'only-global-qunit',
-              '--ui qunit test/only/global/qunit.spec'
+              '--ui qunit test/only/global/qunit.spec --no-parallel'
             ),
             description: 'Run Node.js "global only" w/ QUnit interface tests',
             hiddenFromHelp: true
