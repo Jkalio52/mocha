@@ -8,7 +8,9 @@ const {
   EVENT_SUITE_BEGIN
 } = require('../../lib/runner').constants;
 const rewiremock = require('rewiremock/node');
-const BUFFERED_RUNNER_PATH = require.resolve('../../lib/buffered-runner.js');
+const BUFFERED_RUNNER_PATH = require.resolve(
+  '../../lib/nodejs/buffered-runner.js'
+);
 const Suite = require('../../lib/suite');
 const {createSandbox} = require('sinon');
 
@@ -16,7 +18,7 @@ describe('buffered-runner', function() {
   describe('BufferedRunner', function() {
     let sandbox;
     let run;
-    let WorkerPool;
+    let BufferedWorkerPool;
     let terminate;
     let BufferedRunner;
     let suite;
@@ -32,7 +34,7 @@ describe('buffered-runner', function() {
       // tests will want to further define the behavior of these.
       run = sandbox.stub();
       terminate = sandbox.stub();
-      WorkerPool = {
+      BufferedWorkerPool = {
         create: sandbox.stub().returns({
           run,
           terminate,
@@ -40,8 +42,8 @@ describe('buffered-runner', function() {
         })
       };
       BufferedRunner = rewiremock.proxy(BUFFERED_RUNNER_PATH, r => ({
-        '../../lib/pool': {
-          WorkerPool
+        '../../lib/nodejs/buffered-pool': {
+          BufferedWorkerPool
         },
         os: {
           cpus: sandbox.stub().callsFake(() => new Array(cpuCount))

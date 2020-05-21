@@ -17,7 +17,7 @@ const {
   EVENT_HOOK_BEGIN,
   EVENT_HOOK_END,
   EVENT_RUN_END
-} = require('../../lib/runner').constants;
+} = require('../../../lib/runner').constants;
 const {EventEmitter} = require('events');
 const {createSandbox} = require('sinon');
 const rewiremock = require('rewiremock/node');
@@ -31,9 +31,9 @@ describe('Buffered', function() {
     sandbox = createSandbox();
     runner = new EventEmitter();
     Buffered = rewiremock.proxy(
-      require.resolve('../../lib/reporters/buffered.js'),
+      require.resolve('../../../lib/nodejs/reporters/buffered'),
       {
-        '../../lib/serializer': {
+        '../../../lib/nodejs/serializer': {
           SerializableEvent: {
             create: (eventName, runnable, err) => ({
               eventName,
@@ -50,7 +50,7 @@ describe('Buffered', function() {
             })
           }
         },
-        '../../lib/reporters/base': class MockBase {}
+        '../../../lib/reporters/base': class MockBase {}
       }
     );
   });

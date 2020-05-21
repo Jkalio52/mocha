@@ -6,7 +6,7 @@ const {
   deserialize,
   SerializableEvent,
   SerializableWorkerResult
-} = require('../../lib/serializer');
+} = require('../../lib/nodejs/serializer');
 
 describe('serializer', function() {
   let sandbox;

@@ -1,11 +1,11 @@
 'use strict';
 
 const serializeJavascript = require('serialize-javascript');
-const {SerializableWorkerResult} = require('../../lib/serializer');
 const rewiremock = require('rewiremock/node');
+const {SerializableWorkerResult} = require('../../lib/nodejs/serializer');
 const {createSandbox} = require('sinon');
 
-const WORKER_PATH = require.resolve('../../lib/worker.js');
+const WORKER_PATH = require.resolve('../../lib/nodejs/worker.js');
 
 describe('worker', function() {
   let worker;
@@ -64,7 +64,7 @@ describe('worker', function() {
       worker = rewiremock.proxy(WORKER_PATH, {
         workerpool: stubs.workerpool,
         '../../lib/mocha': stubs.Mocha,
-        '../../lib/serializer': stubs.serializer,
+        '../../lib/nodejs/serializer': stubs.serializer,
         '../../lib/cli/run-helpers': stubs.runHelpers
       });
     });

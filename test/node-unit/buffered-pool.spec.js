@@ -3,8 +3,8 @@
 const rewiremock = require('rewiremock/node');
 const {createSandbox} = require('sinon');
 
-describe('class WorkerPool', function() {
-  let WorkerPool;
+describe('class BufferedWorkerPool', function() {
+  let BufferedWorkerPool;
   let sandbox;
   let pool;
   let stats;
@@ -26,16 +26,19 @@ describe('class WorkerPool', function() {
     };
 
     serializeJavascript = sandbox.spy(require('serialize-javascript'));
-    WorkerPool = rewiremock.proxy(require.resolve('../../lib/pool'), {
-      workerpool: {
-        pool: sandbox.stub().returns(pool)
-      },
-      '../../lib/serializer': serializer,
-      'serialize-javascript': serializeJavascript
-    }).WorkerPool;
+    BufferedWorkerPool = rewiremock.proxy(
+      require.resolve('../../lib/nodejs/buffered-pool'),
+      {
+        workerpool: {
+          pool: sandbox.stub().returns(pool)
+        },
+        '../../lib/nodejs/serializer': serializer,
+        'serialize-javascript': serializeJavascript
+      }
+    ).BufferedWorkerPool;
 
     // reset cache
-    WorkerPool.resetOptionsCache();
+    BufferedWorkerPool.resetOptionsCache();
   });
 
   afterEach(function() {
@@ -44,13 +47,17 @@ describe('class WorkerPool', function() {
 
   describe('static method', function() {
     describe('create()', function() {
-      it('should return a WorkerPool instance', function() {
-        expect(WorkerPool.create({foo: 'bar'}), 'to be a', WorkerPool);
+      it('should return a BufferedWorkerPool instance', function() {
+        expect(
+          BufferedWorkerPool.create({foo: 'bar'}),
+          'to be a',
+          BufferedWorkerPool
+        );
       });
 
       describe('when passed no arguments', function() {
         it('should not throw', function() {
-          expect(WorkerPool.create, 'not to throw');
+          expect(BufferedWorkerPool.create, 'not to throw');
         });
       });
     });
@@ -58,28 +65,32 @@ describe('class WorkerPool', function() {
     describe('serializeOptions()', function() {
       describe('when passed no arguments', function() {
         it('should not throw', function() {
-          expect(WorkerPool.serializeOptions, 'not to throw');
+          expect(BufferedWorkerPool.serializeOptions, 'not to throw');
         });
       });
 
       it('should return a serialized string', function() {
-        expect(WorkerPool.serializeOptions({foo: 'bar'}), 'to be a', 'string');
+        expect(
+          BufferedWorkerPool.serializeOptions({foo: 'bar'}),
+          'to be a',
+          'string'
+        );
       });
 
       describe('when called multiple times with the same object', function() {
         it('should not perform serialization twice', function() {
           const obj = {foo: 'bar'};
-          WorkerPool.serializeOptions(obj);
-          WorkerPool.serializeOptions(obj);
+          BufferedWorkerPool.serializeOptions(obj);
+          BufferedWorkerPool.serializeOptions(obj);
           expect(serializeJavascript, 'was called once');
         });
 
         it('should return the same value', function() {
           const obj = {foo: 'bar'};
           expect(
-            WorkerPool.serializeOptions(obj),
+            BufferedWorkerPool.serializeOptions(obj),
             'to be',
-            WorkerPool.serializeOptions(obj)
+            BufferedWorkerPool.serializeOptions(obj)
           );
         });
       });
@@ -88,7 +99,7 @@ describe('class WorkerPool', function() {
 
   describe('constructor', function() {
     it('should apply defaults', function() {
-      expect(new WorkerPool(), 'to satisfy', {
+      expect(new BufferedWorkerPool(), 'to satisfy', {
         options: {
           workerType: 'process',
           forkOpts: {execArgv: process.execArgv},
@@ -102,7 +113,7 @@ describe('class WorkerPool', function() {
     let workerPool;
 
     beforeEach(function() {
-      workerPool = WorkerPool.create();
+      workerPool = BufferedWorkerPool.create();
     });
 
     describe('stats()', function() {

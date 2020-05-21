@@ -30,18 +30,14 @@ module.exports = config => {
     browserify: {
       debug: true,
       configure: function configure(b) {
-        b.ignore('./lib/cli/*.js')
-          .ignore('chokidar')
+        b.ignore('chokidar')
           .ignore('fs')
           .ignore('glob')
-          .ignore('./lib/esm-utils.js')
           .ignore('path')
           .ignore('supports-color')
-          .ignore('./lib/buffered-runner.js')
-          .ignore('./lib/reporters/buffered.js')
-          .ignore('./lib/serializer.js')
-          .ignore('./lib/worker.js')
-          .ignore('./lib/pool.js')
+          .ignore('./lib/esm-utils.js')
+          .ignore('./lib/cli/*.js')
+          .ignore('./lib/nodejs/*.js')
           .on('bundled', (err, content) => {
             if (err) {
               throw err;

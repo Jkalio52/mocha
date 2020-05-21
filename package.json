@@ -162,11 +162,11 @@
     "glob": false,
     "path": false,
     "supports-color": false,
-    "./lib/serializer.js": false,
-    "./lib/reporters/buffered.js": false,
-    "./lib/buffered-reporter.js": false,
-    "./lib/worker.js": false,
-    "./lib/pool.js": false
+    "./lib/nodejs/serializer.js": false,
+    "./lib/nodejs/reporters/buffered.js": false,
+    "./lib/nodejs/buffered-reporter.js": false,
+    "./lib/nodejs/worker.js": false,
+    "./lib/nodejs/buffered-pool.js": false
   },
   "prettier": {
     "singleQuote": true,
