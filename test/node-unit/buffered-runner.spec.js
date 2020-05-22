@@ -12,6 +12,7 @@ const BUFFERED_RUNNER_PATH = require.resolve(
   '../../lib/nodejs/buffered-runner.js'
 );
 const Suite = require('../../lib/suite');
+const Runner = require('../../lib/runner');
 const {createSandbox} = require('sinon');
 
 describe('buffered-runner', function() {
@@ -50,6 +51,48 @@ describe('buffered-runner', function() {
         },
         '../../lib/utils': r.with({warn}).callThrough()
       }));
+    });
+
+    describe('constructor', function() {
+      it('should start in "IDLE" state', function() {
+        expect(new BufferedRunner(suite), 'to have property', '_state', 'IDLE');
+      });
+    });
+
+    describe('instance property', function() {
+      let runner;
+
+      beforeEach(function() {
+        runner = new BufferedRunner(suite);
+      });
+
+      describe('_state', function() {
+        it('should disallow an invalid state transition', function() {
+          expect(
+            () => {
+              runner._state = 'BAILED';
+            },
+            'to throw',
+            /invalid state transition/
+          );
+        });
+      });
+    });
+
+    describe('event', function() {
+      let runner;
+
+      beforeEach(function() {
+        runner = new BufferedRunner(suite);
+      });
+
+      describe('EVENT_RUN_END', function() {
+        it('should change the state to COMPLETE', function() {
+          runner._state = 'RUNNING';
+          runner.emit(Runner.constants.EVENT_RUN_END);
+          expect(runner._state, 'to be', 'COMPLETE');
+        });
+      });
     });
 
     describe('instance method', function() {
