@@ -4,6 +4,7 @@ var sinon = require('sinon');
 var EventEmitter = require('events').EventEmitter;
 var Mocha = require('../../lib/mocha');
 var utils = require('../../lib/utils');
+var BufferedRunner = require('../../lib/nodejs/buffered-runner');
 
 describe('Mocha', function() {
   /**
@@ -102,6 +103,7 @@ describe('Mocha', function() {
       sandbox.stub(Mocha.prototype, 'global').returnsThis();
       sandbox.stub(Mocha.prototype, 'retries').returnsThis();
       sandbox.stub(Mocha.prototype, 'rootHooks').returnsThis();
+      sandbox.stub(Mocha.prototype, 'parallelMode').returnsThis();
     });
 
     it('should set _cleanReferencesAfterRun to true', function() {
@@ -161,6 +163,26 @@ describe('Mocha', function() {
         expect(Mocha.prototype.rootHooks, 'to have a call satisfying', [
           ['a root hook']
         ]).and('was called once');
+      });
+    });
+
+    describe('when `parallel` option is true', function() {
+      describe('and `jobs` option > 1', function() {
+        it('should enable parallel mode', function() {
+          // eslint-disable-next-line no-new
+          new Mocha({parallel: true, jobs: 2});
+          expect(Mocha.prototype.parallelMode, 'to have a call satisfying', [
+            true
+          ]).and('was called once');
+        });
+      });
+
+      describe('and `jobs` option <= 1', function() {
+        it('should not enable parallel mode', function() {
+          // eslint-disable-next-line no-new
+          new Mocha({parallel: true, jobs: 1});
+          expect(Mocha.prototype.parallelMode, 'was not called');
+        });
       });
     });
   });
@@ -547,7 +569,7 @@ describe('Mocha', function() {
 
         describe('when Mocha is set to lazily load files', function() {
           beforeEach(function() {
-            mocha.lazyLoadFiles = true;
+            mocha.lazyLoadFiles(true);
           });
 
           it('should not eagerly load files', function(done) {
@@ -696,8 +718,6 @@ describe('Mocha', function() {
             },
             'to throw',
             {
-              message:
-                'Mocha instance is currently running tests, cannot start a next test run until this one is done',
               code: 'ERR_MOCHA_INSTANCE_ALREADY_RUNNING',
               instance: mocha
             }
@@ -727,8 +747,6 @@ describe('Mocha', function() {
             },
             'to throw',
             {
-              message:
-                'Mocha instance is already disposed, cannot start a new test run. Please create a new mocha instance. Be sure to set disable `cleanReferencesAfterRun` when you want to reuse the same mocha instance for multiple test runs.',
               code: 'ERR_MOCHA_INSTANCE_ALREADY_DISPOSED',
               cleanReferencesAfterRun: true,
               instance: mocha
@@ -761,8 +779,6 @@ describe('Mocha', function() {
             },
             'to throw',
             {
-              message:
-                'Mocha instance is already disposed, cannot start a new test run. Please create a new mocha instance. Be sure to set disable `cleanReferencesAfterRun` when you want to reuse the same mocha instance for multiple test runs.',
               code: 'ERR_MOCHA_INSTANCE_ALREADY_DISPOSED',
               instance: mocha
             }
@@ -836,6 +852,145 @@ describe('Mocha', function() {
           'to throw',
           'Mocha instance is already disposed, it cannot be used again.'
         );
+      });
+    });
+
+    describe('lazyLoadFiles()', function() {
+      it('should return the `Mocha` instance', function() {
+        expect(mocha.lazyLoadFiles(), 'to be', mocha);
+      });
+      describe('when passed a non-`true` value', function() {
+        it('should enable eager loading', function() {
+          mocha.lazyLoadFiles(0);
+          expect(mocha._lazyLoadFiles, 'to be false');
+        });
+      });
+
+      describe('when passed `true`', function() {
+        it('should enable lazy loading', function() {
+          mocha.lazyLoadFiles(true);
+          expect(mocha._lazyLoadFiles, 'to be true');
+        });
+      });
+    });
+
+    describe('parallelMode()', function() {
+      describe('when `Mocha` is running in Node.js', function() {
+        beforeEach(function() {
+          sandbox.stub(utils, 'isBrowser').returns(false);
+        });
+
+        it('should return the Mocha instance', function() {
+          expect(mocha.parallelMode(), 'to be', mocha);
+        });
+
+        describe('when parallel mode is already enabled', function() {
+          beforeEach(function() {
+            mocha.options.parallel = true;
+            mocha._runnerClass = BufferedRunner;
+            mocha._lazyLoadFiles = true;
+          });
+
+          it('should not swap the Runner, nor change lazy loading setting', function() {
+            expect(mocha.parallelMode(true), 'to satisfy', {
+              options: {parallel: true},
+              _runnerClass: BufferedRunner,
+              _lazyLoadFiles: true
+            });
+          });
+        });
+
+        describe('when parallel mode is already disabled', function() {
+          beforeEach(function() {
+            mocha.options.parallel = false;
+            mocha._runnerClass = Mocha.Runner;
+            mocha._lazyLoadFiles = false;
+          });
+
+          it('should not swap the Runner, nor change lazy loading setting', function() {
+            expect(mocha.parallelMode(false), 'to satisfy', {
+              options: {parallel: false},
+              _runnerClass: Mocha.Runner,
+              _lazyLoadFiles: false
+            });
+          });
+        });
+
+        describe('when `Mocha` instance in serial mode', function() {
+          beforeEach(function() {
+            mocha.options.parallel = false;
+          });
+
+          describe('when passed `true` value', function() {
+            describe('when `Mocha` instance is in `INIT` state', function() {
+              beforeEach(function() {
+                mocha._state = 'init';
+              });
+
+              it('should enable parallel mode', function() {
+                expect(mocha.parallelMode(true), 'to satisfy', {
+                  _runnerClass: BufferedRunner,
+                  options: {
+                    parallel: true
+                  },
+                  _lazyLoadFiles: true
+                });
+              });
+            });
+
+            describe('when `Mocha` instance is not in `INIT` state', function() {
+              beforeEach(function() {
+                mocha._state = 'disposed';
+              });
+
+              it('should throw', function() {
+                expect(
+                  function() {
+                    mocha.parallelMode(true);
+                  },
+                  'to throw',
+                  {
+                    code: 'ERR_MOCHA_UNSUPPORTED'
+                  }
+                );
+              });
+            });
+          });
+
+          describe('when passed non-`true` value', function() {
+            describe('when `Mocha` instance is in `INIT` state', function() {
+              beforeEach(function() {
+                mocha._state = 'init';
+              });
+
+              it('should enable serial mode', function() {
+                expect(mocha.parallelMode(0), 'to satisfy', {
+                  _runnerClass: Mocha.Runner,
+                  options: {
+                    parallel: false
+                  },
+                  _lazyLoadFiles: false
+                });
+              });
+            });
+          });
+        });
+      });
+
+      describe('when `Mocha` is running in a browser', function() {
+        beforeEach(function() {
+          sandbox.stub(utils, 'isBrowser').returns(true);
+        });
+
+        it('should throw', function() {
+          expect(
+            function() {
+              mocha.parallelMode();
+            },
+            'to throw',
+            {code: 'ERR_MOCHA_UNSUPPORTED'}
+          );
+        });
       });
     });
   });
