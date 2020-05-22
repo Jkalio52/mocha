@@ -1,7 +1,7 @@
 'use strict';
 
 it('should fail if in a worker', function() {
-  if (/worker\.js$/.test(require.main.filename)) {
+  if (!require('workerpool').isMainThread) {
     throw new Error('in worker!');
   }
 });
