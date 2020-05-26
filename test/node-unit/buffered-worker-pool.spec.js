@@ -27,7 +27,7 @@ describe('class BufferedWorkerPool', function() {
 
     serializeJavascript = sandbox.spy(require('serialize-javascript'));
     BufferedWorkerPool = rewiremock.proxy(
-      require.resolve('../../lib/nodejs/buffered-pool'),
+      require.resolve('../../lib/nodejs/buffered-worker-pool'),
       {
         workerpool: {
           pool: sandbox.stub().returns(pool)

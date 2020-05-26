@@ -32,6 +32,7 @@ overrides:
       - 'bin/*'
       - 'docs/_data/**/*.js'
       - 'lib/cli/**/*.js'
+      - 'lib/growl.js'
       - 'lib/nodejs/**/*.js'
       - 'scripts/**/*.js'
       - 'test/integration/helpers.js'

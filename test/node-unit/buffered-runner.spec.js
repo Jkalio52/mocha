@@ -43,7 +43,7 @@ describe('buffered-runner', function() {
         })
       };
       BufferedRunner = rewiremock.proxy(BUFFERED_RUNNER_PATH, r => ({
-        '../../lib/nodejs/buffered-pool': {
+        '../../lib/nodejs/buffered-worker-pool': {
           BufferedWorkerPool
         },
         os: {

@@ -4,7 +4,6 @@ var sinon = require('sinon');
 var EventEmitter = require('events').EventEmitter;
 var Mocha = require('../../lib/mocha');
 var utils = require('../../lib/utils');
-var BufferedRunner = require('../../lib/nodejs/buffered-runner');
 
 describe('Mocha', function() {
   /**
@@ -875,108 +874,6 @@ describe('Mocha', function() {
     });
 
     describe('parallelMode()', function() {
-      describe('when `Mocha` is running in Node.js', function() {
-        beforeEach(function() {
-          sandbox.stub(utils, 'isBrowser').returns(false);
-        });
-
-        it('should return the Mocha instance', function() {
-          expect(mocha.parallelMode(), 'to be', mocha);
-        });
-
-        describe('when parallel mode is already enabled', function() {
-          beforeEach(function() {
-            mocha.options.parallel = true;
-            mocha._runnerClass = BufferedRunner;
-            mocha._lazyLoadFiles = true;
-          });
-
-          it('should not swap the Runner, nor change lazy loading setting', function() {
-            expect(mocha.parallelMode(true), 'to satisfy', {
-              options: {parallel: true},
-              _runnerClass: BufferedRunner,
-              _lazyLoadFiles: true
-            });
-          });
-        });
-
-        describe('when parallel mode is already disabled', function() {
-          beforeEach(function() {
-            mocha.options.parallel = false;
-            mocha._runnerClass = Mocha.Runner;
-            mocha._lazyLoadFiles = false;
-          });
-
-          it('should not swap the Runner, nor change lazy loading setting', function() {
-            expect(mocha.parallelMode(false), 'to satisfy', {
-              options: {parallel: false},
-              _runnerClass: Mocha.Runner,
-              _lazyLoadFiles: false
-            });
-          });
-        });
-
-        describe('when `Mocha` instance in serial mode', function() {
-          beforeEach(function() {
-            mocha.options.parallel = false;
-          });
-
-          describe('when passed `true` value', function() {
-            describe('when `Mocha` instance is in `INIT` state', function() {
-              beforeEach(function() {
-                mocha._state = 'init';
-              });
-
-              it('should enable parallel mode', function() {
-                expect(mocha.parallelMode(true), 'to satisfy', {
-                  _runnerClass: BufferedRunner,
-                  options: {
-                    parallel: true
-                  },
-                  _lazyLoadFiles: true
-                });
-              });
-            });
-
-            describe('when `Mocha` instance is not in `INIT` state', function() {
-              beforeEach(function() {
-                mocha._state = 'disposed';
-              });
-
-              it('should throw', function() {
-                expect(
-                  function() {
-                    mocha.parallelMode(true);
-                  },
-                  'to throw',
-                  {
-                    code: 'ERR_MOCHA_UNSUPPORTED'
-                  }
-                );
-              });
-            });
-          });
-
-          describe('when passed non-`true` value', function() {
-            describe('when `Mocha` instance is in `INIT` state', function() {
-              beforeEach(function() {
-                mocha._state = 'init';
-              });
-
-              it('should enable serial mode', function() {
-                expect(mocha.parallelMode(0), 'to satisfy', {
-                  _runnerClass: Mocha.Runner,
-                  options: {
-                    parallel: false
-                  },
-                  _lazyLoadFiles: false
-                });
-              });
-            });
-          });
-        });
-      });
-
       describe('when `Mocha` is running in a browser', function() {
         beforeEach(function() {
           sandbox.stub(utils, 'isBrowser').returns(true);
