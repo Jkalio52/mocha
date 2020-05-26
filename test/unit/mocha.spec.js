@@ -834,45 +834,6 @@ describe('Mocha', function() {
       });
     });
 
-    describe('unloadFiles()', function() {
-      it('should reset referencesCleaned and allow for next run', function(done) {
-        mocha.run(function() {
-          mocha.unloadFiles();
-          mocha.run(done);
-        });
-      });
-
-      it('should not be allowed when the current instance is already disposed', function() {
-        mocha.dispose();
-        expect(
-          function() {
-            mocha.unloadFiles();
-          },
-          'to throw',
-          'Mocha instance is already disposed, it cannot be used again.'
-        );
-      });
-    });
-
-    describe('lazyLoadFiles()', function() {
-      it('should return the `Mocha` instance', function() {
-        expect(mocha.lazyLoadFiles(), 'to be', mocha);
-      });
-      describe('when passed a non-`true` value', function() {
-        it('should enable eager loading', function() {
-          mocha.lazyLoadFiles(0);
-          expect(mocha._lazyLoadFiles, 'to be false');
-        });
-      });
-
-      describe('when passed `true`', function() {
-        it('should enable lazy loading', function() {
-          mocha.lazyLoadFiles(true);
-          expect(mocha._lazyLoadFiles, 'to be true');
-        });
-      });
-    });
-
     describe('parallelMode()', function() {
       describe('when `Mocha` is running in a browser', function() {
         beforeEach(function() {

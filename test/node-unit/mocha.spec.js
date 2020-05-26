@@ -33,16 +33,32 @@ describe('Mocha', function() {
     stubs.suite = Object.assign(sandbox.createStubInstance(EventEmitter), {
       slow: sandbox.stub(),
       timeout: sandbox.stub(),
-      bail: sandbox.stub()
+      bail: sandbox.stub(),
+      reset: sandbox.stub(),
+      dispose: sandbox.stub()
     });
     stubs.Suite = sandbox.stub().returns(stubs.suite);
     stubs.Suite.constants = {};
     stubs.BufferedRunner = sandbox.stub().returns({});
+    const runner = Object.assign(sandbox.createStubInstance(EventEmitter), {
+      run: sandbox
+        .stub()
+        .callsArgAsync(0)
+        .returnsThis(),
+      globals: sandbox.stub(),
+      grep: sandbox.stub(),
+      dispose: sandbox.stub()
+    });
+    stubs.Runner = sandbox.stub().returns(runner);
+    // the Runner constructor is the main export, and constants is a static prop.
+    // we don't need the constants themselves, but the object cannot be undefined
+    stubs.Runner.constants = {};
 
     Mocha = rewiremock.proxy(MODULE_PATH, r => ({
       '../../lib/utils.js': r.with(stubs.utils).callThrough(),
       '../../lib/suite.js': stubs.Suite,
-      '../../lib/nodejs/buffered-runner.js': stubs.BufferedRunner
+      '../../lib/nodejs/buffered-runner.js': stubs.BufferedRunner,
+      '../../lib/runner.js': stubs.Runner
     }));
     delete require.cache[DUMB_FIXTURE_PATH];
     delete require.cache[DUMBER_FIXTURE_PATH];
@@ -287,6 +303,45 @@ describe('Mocha', function() {
               ]);
             }
           });
+        });
+      });
+    });
+
+    describe('unloadFiles()', function() {
+      it('should reset referencesCleaned and allow for next run', function(done) {
+        mocha.run(function() {
+          mocha.unloadFiles();
+          mocha.run(done);
+        });
+      });
+
+      it('should not be allowed when the current instance is already disposed', function() {
+        mocha.dispose();
+        expect(
+          function() {
+            mocha.unloadFiles();
+          },
+          'to throw',
+          'Mocha instance is already disposed, it cannot be used again.'
+        );
+      });
+    });
+
+    describe('lazyLoadFiles()', function() {
+      it('should return the `Mocha` instance', function() {
+        expect(mocha.lazyLoadFiles(), 'to be', mocha);
+      });
+      describe('when passed a non-`true` value', function() {
+        it('should enable eager loading', function() {
+          mocha.lazyLoadFiles(0);
+          expect(mocha._lazyLoadFiles, 'to be false');
+        });
+      });
+
+      describe('when passed `true`', function() {
+        it('should enable lazy loading', function() {
+          mocha.lazyLoadFiles(true);
+          expect(mocha._lazyLoadFiles, 'to be true');
         });
       });
     });
